@@ -1,0 +1,31 @@
+@import "@fontsource/ibm-plex-sans/400.css"; @import "@fontsource/ibm-plex-sans/500.css"; @import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-mono/400.css"; @import "@fontsource/ibm-plex-mono/500.css";
+@tailwind base; @tailwind components; @tailwind utilities;
+/* light: warm paper + ink. dark: graphite. */
+:root { --bg:240 239 236; --panel:250 249 247; --raised:232 231 227; --line:206 204 197; --ink:28 31 36; --mute:104 108 114; --accent:36 92 140; --warn:146 98 12; --bad:166 55 48; --ok:38 112 78; }
+.dark { --bg:15 18 22; --panel:21 25 30; --raised:30 35 41; --line:41 48 56; --ink:208 214 220; --mute:132 142 153; --accent:125 167 208; --warn:208 166 84; --bad:210 108 100; --ok:116 175 140; }
+html,body,#root { height:100%; }
+body { @apply bg-bg text-ink font-sans text-base antialiased; font-feature-settings: "tnum" 1, "cv11" 1; }
+*:focus-visible { outline:2px solid rgb(var(--accent)); outline-offset:1px; }
+::-webkit-scrollbar { width:10px; height:10px } ::-webkit-scrollbar-thumb { background:rgb(var(--line)); } ::-webkit-scrollbar-track { background:transparent }
+.ref { @apply font-mono text-xs whitespace-nowrap tracking-tight; }
+th { @apply text-left font-medium text-mute text-[10.5px] uppercase tracking-[.07em] px-2.5 py-1.5 border-b border-line sticky top-0 bg-panel whitespace-nowrap z-[1]; }
+td { @apply px-2.5 py-1.5 border-b border-line/50 align-top; }
+tbody tr { box-shadow: inset 2px 0 0 transparent; }
+tbody tr:hover { background: rgb(var(--raised) / .55); box-shadow: inset 2px 0 0 rgb(var(--accent)); }
+input,select,textarea { @apply bg-bg border border-line px-2 py-1 text-sm w-full text-ink; }
+input:hover,select:hover,textarea:hover { border-color: rgb(var(--mute) / .7); }
+input[type=checkbox] { @apply w-auto; accent-color: rgb(var(--accent)); }
+label.f > span { @apply block text-[10.5px] uppercase tracking-[.06em] text-mute mb-0.5; }
+.label { @apply text-[10.5px] uppercase tracking-[.08em] text-mute; }
+/* epistemic status: how sure are we? encoded in line style, not only colour */
+.k-FACT { border:1px solid rgb(var(--ink)); background:rgb(var(--ink)); color:rgb(var(--bg)); }
+.k-OBSERVATION { border:1px solid rgb(var(--mute)); color:rgb(var(--ink)); }
+.k-INFERENCE { border:1px dashed rgb(var(--warn)); color:rgb(var(--warn)); }
+.k-HYPOTHESIS { border:1px dotted rgb(var(--warn)); color:rgb(var(--warn)); }
+.c-CONFIRMED { border:1px solid rgb(var(--ok)); color:rgb(var(--ok)); }
+.c-LIKELY { border:1px dashed rgb(var(--accent)); color:rgb(var(--accent)); }
+.c-POSSIBLE { border:1px dotted rgb(var(--warn)); color:rgb(var(--warn)); }
+.k-FACT,.k-OBSERVATION,.k-INFERENCE,.k-HYPOTHESIS,.c-CONFIRMED,.c-LIKELY,.c-POSSIBLE { font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.03em; }
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
+@media print { aside, header { display:none !important; } }

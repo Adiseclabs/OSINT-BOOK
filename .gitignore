@@ -1,0 +1,10 @@
+data/
+node_modules/
+dist/
+__pycache__/
+
+.venv/
+*.db
+*.zip
+
+.venv/

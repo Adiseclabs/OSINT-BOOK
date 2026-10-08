@@ -1,0 +1,25 @@
+import { useCallback, useEffect, useState } from "react";
+import { Plus } from "lucide-react";
+import { api, qs, Rec } from "../lib";
+import { useApp } from "../ctx";
+import { EntityPage, refLabel, useRefs } from "../EntityPage";
+import { Btn, Empty, Loading, Mono, PageHead, Panel, Tag } from "../ui";
+
+const EVT = ["Discovery", "Observation", "Change", "Capture", "Registration", "Incident", "Contact", "Other"];
+export default function Timeline() {
+  const { caseId, activeCase } = useApp(); const { refs } = useRefs(caseId); const [items, setItems] = useState<Rec[] | null>(null); const [f, setF] = useState<Rec>({}); const [view, setView] = useState<"track" | "table">("track"); const [k, setK] = useState(0);
+  const load = useCallback(async () => { const r = await api("/timeline" + qs({ case_id: caseId, size: 200, event_type: f.event_type })); setItems(f.subject ? r.items.filter((x: Rec) => x.subject_id === f.subject) : f.source ? r.items.filter((x: Rec) => x.source_id === f.source) : r.items); }, [caseId, f]);
+  useEffect(() => { load(); }, [load, k]);
+  return <div><PageHead title="Timeline" sub={activeCase ? <>Case <Mono>{activeCase.ref}</Mono> - events link back to subject, source, evidence and finding</> : "Select a case to build its timeline"} actions={<div className="flex border border-line overflow-hidden text-xs">{(["track", "table"] as const).map((v) => <button key={v} onClick={() => setView(v)} className={`px-2.5 py-1 ${view === v ? "bg-raised" : "text-mute"}`}>{v === "track" ? "Timeline" : "Table / edit"}</button>)}</div>} />
+    <div className="flex gap-2 mb-2 flex-wrap"><select className="w-auto" aria-label="Event type" value={f.event_type || ""} onChange={(e) => setF({ ...f, event_type: e.target.value })}><option value="">Event type: any</option>{EVT.map((t) => <option key={t}>{t}</option>)}</select>
+      <select className="w-auto" aria-label="Subject" value={f.subject || ""} onChange={(e) => setF({ ...f, subject: e.target.value })}><option value="">Subject: any</option>{(refs.subject || []).map((s: Rec) => <option key={s.id} value={s.id}>{s.label}</option>)}</select>
+      <select className="w-auto" aria-label="Source" value={f.source || ""} onChange={(e) => setF({ ...f, source: e.target.value })}><option value="">Source: any</option>{(refs.source || []).map((s: Rec) => <option key={s.id} value={s.id}>{s.ref} {s.label}</option>)}</select></div>
+    {view === "track" ? (!caseId ? <Empty title="No case selected" hint="Choose a case in the top bar." /> : !items ? <Loading /> : items.length === 0 ? <Empty title="No events" hint="Add events in the Table view, or run the Timeline builder in OSINT Tools to propose events from recorded dates." /> :
+      <Panel><ol className="relative ml-24 border-l border-line">{items.map((e) => <li key={e.id} className="relative pl-4 pb-4">
+        <span className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 bg-accent rounded-full ring-2 ring-panel" /><time className="absolute -left-24 w-[88px] text-right font-mono text-xs text-mute pr-2 top-1">{e.event_date.slice(0, 10)}</time>
+        <div className="flex gap-2 items-baseline"><b className="font-medium">{e.title}</b><Tag>{e.event_type}</Tag><Mono className="text-mute">{e.ref}</Mono></div>{e.description && <div className="text-xs text-mute">{e.description}</div>}
+        <div className="text-xs mt-0.5 flex gap-3 flex-wrap text-mute">{e.subject_id && <span>Subject: {refLabel(refs, "subject", e.subject_id)}</span>}{e.source_id && <span>Source: {refLabel(refs, "source", e.source_id)}</span>}{e.evidence_id && <span>Evidence: {refLabel(refs, "evidence", e.evidence_id)}</span>}{e.finding_id && <span>Finding: {refLabel(refs, "finding", e.finding_id)}</span>}</div></li>)}</ol></Panel>)
+      : <EntityPage hideHead key={k} endpoint="timeline" title="Timeline events" singular="Event" onChanged={() => setK(k + 1)} defaults={{ event_type: "Observation" }} filters={[{ key: "event_type", label: "Type", options: EVT }]} fields={[{ name: "event_date", label: "Date", type: "date", req: true, half: true, help: "YYYY-MM-DD or with time" }, { name: "event_type", label: "Type", type: "select", options: EVT, half: true }, { name: "title", label: "Event", req: true }, { name: "description", label: "Description", type: "textarea" },
+        { name: "subject_id", label: "Subject", type: "ref", ref: "subject", half: true }, { name: "source_id", label: "Source", type: "ref", ref: "source", half: true }, { name: "evidence_id", label: "Evidence", type: "ref", ref: "evidence", half: true }, { name: "finding_id", label: "Finding", type: "ref", ref: "finding", half: true }]}
+        cols={[{ key: "event_date", label: "Date", render: (r) => <span className="font-mono text-xs">{r.event_date}</span> }, { key: "title", label: "Event" }, { key: "event_type", label: "Type", render: (r) => <Tag>{r.event_type}</Tag> }, { key: "source_id", label: "Source", render: (r, c) => refLabel(c.refs, "source", r.source_id) }, { key: "evidence_id", label: "Evidence", render: (r, c) => refLabel(c.refs, "evidence", r.evidence_id) }]} />}</div>;
+}
