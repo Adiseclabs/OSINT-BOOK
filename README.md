@@ -76,4 +76,4 @@ Network-dependent tools (WHOIS, CT, DNS, HTTP fetch) are not exercised by the te
 No encrypted backups, no IPv6 ASN lookup, no PDF preview of reports in-app (download only), the authorization check is a recorded note rather than an external approval workflow.
 
 ## Author
-Designed and built by Aditya Bhosale.
+built by Aditya Bhosale.
